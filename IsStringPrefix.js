@@ -2,13 +2,9 @@
 
 var $TypeError = require('es-errors/type');
 
-var isPrefixOf = require('../helpers/isPrefixOf');
+var StringIndexOf = require('./StringIndexOf');
 
-// var callBound = require('call-bind/callBound');
-
-// var $charAt = callBound('String.prototype.charAt');
-
-// https://262.ecma-international.org/9.0/#sec-isstringprefix
+// https://262.ecma-international.org/13.0/#sec-isstringprefix
 
 module.exports = function IsStringPrefix(p, q) {
 	if (typeof p !== 'string') {
@@ -19,25 +15,5 @@ module.exports = function IsStringPrefix(p, q) {
 		throw new $TypeError('Assertion failed: "q" must be a String');
 	}
 
-	return isPrefixOf(p, q);
-	/*
-	if (p === q || p === '') {
-		return true;
-	}
-
-	var pLength = p.length;
-	var qLength = q.length;
-	if (pLength >= qLength) {
-		return false;
-	}
-
-	// assert: pLength < qLength
-
-	for (var i = 0; i < pLength; i += 1) {
-		if ($charAt(p, i) !== $charAt(q, i)) {
-			return false;
-		}
-	}
-	return true;
-	*/
+	return StringIndexOf(q, p, 0) === 0;
 };

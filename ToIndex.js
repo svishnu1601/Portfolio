@@ -2,17 +2,17 @@
 
 var $RangeError = require('es-errors/range');
 
-var ToInteger = require('./ToInteger');
+var ToIntegerOrInfinity = require('./ToIntegerOrInfinity');
 var ToLength = require('./ToLength');
 var SameValue = require('./SameValue');
 
-// https://262.ecma-international.org/12.0/#sec-toindex
+// https://262.ecma-international.org/8.0/#sec-toindex
 
 module.exports = function ToIndex(value) {
 	if (typeof value === 'undefined') {
 		return 0;
 	}
-	var integerIndex = ToInteger(value);
+	var integerIndex = ToIntegerOrInfinity(value);
 	if (integerIndex < 0) {
 		throw new $RangeError('index must be >= 0');
 	}

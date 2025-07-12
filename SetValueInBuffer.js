@@ -21,7 +21,7 @@ var tableTAO = require('./tables/typed-array-objects');
 var defaultEndianness = require('../helpers/defaultEndianness');
 var forEach = require('../helpers/forEach');
 
-// https://262.ecma-international.org/11.0/#sec-setvalueinbuffer
+// https://262.ecma-international.org/12.0/#sec-setvalueinbuffer
 
 /* eslint max-params: 0 */
 
@@ -31,8 +31,8 @@ module.exports = function SetValueInBuffer(arrayBuffer, byteIndex, type, value, 
 		throw new $TypeError('Assertion failed: `arrayBuffer` must be an ArrayBuffer or a SharedArrayBuffer');
 	}
 
-	if (!isInteger(byteIndex)) {
-		throw new $TypeError('Assertion failed: `byteIndex` must be an integer');
+	if (!isInteger(byteIndex) || byteIndex < 0) {
+		throw new $TypeError('Assertion failed: `byteIndex` must be a non-negative integer');
 	}
 
 	if (typeof type !== 'string' || !hasOwn(tableTAO.size, '$' + type)) {
@@ -60,24 +60,20 @@ module.exports = function SetValueInBuffer(arrayBuffer, byteIndex, type, value, 
 
 	// 2. Assert: There are sufficient bytes in arrayBuffer starting at byteIndex to represent a value of type.
 
-	if (byteIndex < 0) {
-		throw new $TypeError('Assertion failed: `byteIndex` must be non-negative'); // step 3
-	}
-
-	if (IsBigIntElementType(type) ? typeof value !== 'bigint' : typeof value !== 'number') { // step 4
+	if (IsBigIntElementType(type) ? typeof value !== 'bigint' : typeof value !== 'number') { // step 3
 		throw new $TypeError('Assertion failed: `value` must be a BigInt if type is BigInt64 or BigUint64, otherwise a Number');
 	}
 
-	// 5. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot.
+	// 4. Let block be arrayBuffer’s [[ArrayBufferData]] internal slot.
 
-	var elementSize = tableTAO.size['$' + type]; // step 6
+	var elementSize = tableTAO.size['$' + type]; // step 5
 
-	// 8. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the GetValueFromBuffer abstract operation.
-	var isLittleEndian = arguments.length > 6 ? arguments[6] : defaultEndianness === 'little'; // step 8
+	// 6. If isLittleEndian is not present, set isLittleEndian to either true or false. The choice is implementation dependent and should be the alternative that is most efficient for the implementation. An implementation must use the same value each time this step is executed and the same value must be used for the corresponding step in the GetValueFromBuffer abstract operation.
+	var isLittleEndian = arguments.length > 6 ? arguments[6] : defaultEndianness === 'little'; // step 6
 
-	var rawBytes = NumericToRawBytes(type, value, isLittleEndian); // step 8
+	var rawBytes = NumericToRawBytes(type, value, isLittleEndian); // step 7
 
-	if (isSAB) { // step 9
+	if (isSAB) { // step 8
 		/*
 			Let execution be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
 			Let eventList be the [[EventList]] field of the element in execution.[[EventsRecords]] whose [[AgentSignifier]] is AgentSignifier().
@@ -86,12 +82,12 @@ module.exports = function SetValueInBuffer(arrayBuffer, byteIndex, type, value, 
 		*/
 		throw new $SyntaxError('SharedArrayBuffer is not supported by this implementation');
 	} else {
-		// 10. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex].
+		// 9. Store the individual bytes of rawBytes into block, in order, starting at block[byteIndex].
 		var arr = new $Uint8Array(arrayBuffer, byteIndex, elementSize);
 		forEach(rawBytes, function (rawByte, i) {
 			arr[i] = rawByte;
 		});
 	}
 
-	// 11. Return NormalCompletion(undefined).
+	// 10. Return NormalCompletion(undefined).
 };

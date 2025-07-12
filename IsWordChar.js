@@ -7,7 +7,7 @@ var callBound = require('call-bind/callBound');
 var $indexOf = callBound('String.prototype.indexOf');
 
 var IsArray = require('./IsArray');
-var IsInteger = require('./IsInteger');
+var IsIntegralNumber = require('./IsIntegralNumber');
 var WordCharacters = require('./WordCharacters');
 
 var every = require('../helpers/every');
@@ -16,14 +16,14 @@ var isChar = function isChar(c) {
 	return typeof c === 'string';
 };
 
-// https://262.ecma-international.org/8.0/#sec-runtime-semantics-iswordchar-abstract-operation
+// https://262.ecma-international.org/12.0/#sec-runtime-semantics-iswordchar-abstract-operation
 
 // note: prior to ES2023, this AO erroneously omitted the latter of its arguments.
 module.exports = function IsWordChar(e, InputLength, Input, IgnoreCase, Unicode) {
-	if (!IsInteger(e)) {
+	if (!IsIntegralNumber(e)) {
 		throw new $TypeError('Assertion failed: `e` must be an integer');
 	}
-	if (!IsInteger(InputLength)) {
+	if (!IsIntegralNumber(InputLength)) {
 		throw new $TypeError('Assertion failed: `InputLength` must be an integer');
 	}
 	if (!IsArray(Input) || !every(Input, isChar)) {

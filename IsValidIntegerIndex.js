@@ -2,27 +2,26 @@
 
 var $TypeError = require('es-errors/type');
 
-var IsInteger = require('./IsInteger');
+var IsDetachedBuffer = require('./IsDetachedBuffer');
+var IsIntegralNumber = require('./IsIntegralNumber');
 
 var isNegativeZero = require('../helpers/isNegativeZero');
 
-var isTypedArray = require('is-typed-array');
 var typedArrayBuffer = require('typed-array-buffer');
 
-// https://262.ecma-international.org/11.0/#sec-isvalidintegerindex
+// https://262.ecma-international.org/12.0/#sec-isvalidintegerindex
 
 module.exports = function IsValidIntegerIndex(O, index) {
-	if (!isTypedArray) {
-		throw new $TypeError('Assertion failed: `O` must be a Typed Array');
-	}
-
-	typedArrayBuffer(O); // step 1
+	// Assert: O is an Integer-Indexed exotic object.
+	var buffer = typedArrayBuffer(O); // step 1
 
 	if (typeof index !== 'number') {
-		throw new $TypeError('Assertion failed: Type(index) is not Number'); // step 2
+		throw new $TypeError('Assertion failed: Type(index) is not Number');
 	}
 
-	if (!IsInteger(index)) { return false; } // step 3
+	if (IsDetachedBuffer(buffer)) { return false; } // step 2
+
+	if (!IsIntegralNumber(index)) { return false; } // step 3
 
 	if (isNegativeZero(index)) { return false; } // step 4
 
