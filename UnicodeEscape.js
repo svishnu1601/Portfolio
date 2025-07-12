@@ -7,9 +7,10 @@ var callBound = require('call-bind/callBound');
 var $charCodeAt = callBound('String.prototype.charCodeAt');
 var $numberToString = callBound('Number.prototype.toString');
 var $toLowerCase = callBound('String.prototype.toLowerCase');
-var $strSlice = callBound('String.prototype.slice');
 
-// https://262.ecma-international.org/9.0/#sec-unicodeescape
+var StringPad = require('./StringPad');
+
+// https://262.ecma-international.org/11.0/#sec-unicodeescape
 
 module.exports = function UnicodeEscape(C) {
 	if (typeof C !== 'string' || C.length !== 1) {
@@ -20,5 +21,5 @@ module.exports = function UnicodeEscape(C) {
 		throw new $TypeError('`Assertion failed: numeric value of `C` must be <= 0xFFFF');
 	}
 
-	return '\\u' + $strSlice('0000' + $toLowerCase($numberToString(n, 16)), -4);
+	return '\\u' + StringPad($toLowerCase($numberToString(n, 16)), 4, '0', 'start');
 };
