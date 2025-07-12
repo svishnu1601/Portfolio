@@ -1,6 +1,6 @@
 'use strict';
 
-// https://262.ecma-international.org/10.0/#table-49
+// https://262.ecma-international.org/11.0/#table-the-typedarray-constructors
 
 module.exports = {
 	__proto__: null,
@@ -13,6 +13,8 @@ module.exports = {
 		$Uint16Array: 'Uint16',
 		$Int32Array: 'Int32',
 		$Uint32Array: 'Uint32',
+		$BigInt64Array: 'BigInt64',
+		$BigUint64Array: 'BigUint64',
 		$Float32Array: 'Float32',
 		$Float64Array: 'Float64'
 	},
@@ -25,6 +27,8 @@ module.exports = {
 		$Uint16: 2,
 		$Int32: 4,
 		$Uint32: 4,
+		$BigInt64: 8,
+		$BigUint64: 8,
 		$Float32: 4,
 		$Float64: 8
 	}
