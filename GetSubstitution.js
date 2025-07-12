@@ -1,31 +1,32 @@
-
 'use strict';
 
-var GetIntrinsic = require('get-intrinsic');
-
 var $TypeError = require('es-errors/type');
-var $parseInt = GetIntrinsic('%parseInt%');
 
-var inspect = require('object-inspect');
-
-var regexTester = require('safe-regex-test');
 var callBound = require('call-bind/callBound');
+var regexTester = require('safe-regex-test');
 var every = require('../helpers/every');
-
-var isDigit = regexTester(/^[0-9]$/);
 
 var $charAt = callBound('String.prototype.charAt');
 var $strSlice = callBound('String.prototype.slice');
+var $indexOf = callBound('String.prototype.indexOf');
+var $parseInt = parseInt;
 
+var isDigit = regexTester(/^[0-9]$/);
+
+var inspect = require('object-inspect');
+
+var Get = require('./Get');
 var IsArray = require('./IsArray');
+var ToObject = require('./ToObject');
+var ToString = require('./ToString');
 
 var isInteger = require('../helpers/isInteger');
 var isStringOrUndefined = require('../helpers/isStringOrUndefined');
 
-// https://262.ecma-international.org/6.0/#sec-getsubstitution
+// http://262.ecma-international.org/9.0/#sec-getsubstitution
 
-// eslint-disable-next-line max-statements, max-lines-per-function
-module.exports = function GetSubstitution(matched, str, position, captures, replacement) {
+// eslint-disable-next-line max-statements, max-params, max-lines-per-function
+module.exports = function GetSubstitution(matched, str, position, captures, namedCaptures, replacement) {
 	if (typeof matched !== 'string') {
 		throw new $TypeError('Assertion failed: `matched` must be a String');
 	}
@@ -41,7 +42,7 @@ module.exports = function GetSubstitution(matched, str, position, captures, repl
 	}
 
 	if (!IsArray(captures) || !every(captures, isStringOrUndefined)) {
-		throw new $TypeError('Assertion failed: `captures` must be a List of Strings, got ' + inspect(captures));
+		throw new $TypeError('Assertion failed: `captures` must be a List of Strings or `undefined`, got ' + inspect(captures));
 	}
 
 	if (typeof replacement !== 'string') {
@@ -50,6 +51,9 @@ module.exports = function GetSubstitution(matched, str, position, captures, repl
 
 	var tailPos = position + matchLength;
 	var m = captures.length;
+	if (typeof namedCaptures !== 'undefined') {
+		namedCaptures = ToObject(namedCaptures); // eslint-disable-line no-param-reassign
+	}
 
 	var result = '';
 	for (var i = 0; i < replacement.length; i += 1) {
@@ -86,6 +90,23 @@ module.exports = function GetSubstitution(matched, str, position, captures, repl
 					// if nn === '00' or nn > m, impl-defined
 					result += nn <= m && typeof captures[nnI] === 'undefined' ? '' : captures[nnI];
 					i += 2;
+				} else if (next === '<') {
+					if (typeof namedCaptures === 'undefined') {
+						result += '$<';
+						i += 2;
+					} else {
+						var endIndex = $indexOf(replacement, '>', i);
+
+						if (endIndex > -1) {
+							var groupName = $strSlice(replacement, i + '$<'.length, endIndex);
+							var capture = Get(namedCaptures, groupName);
+
+							if (typeof capture !== 'undefined') {
+								result += ToString(capture);
+							}
+							i += ('<' + groupName + '>').length;
+						}
+					}
 				} else {
 					result += '$';
 				}

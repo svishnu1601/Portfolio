@@ -4,7 +4,7 @@ var $TypeError = require('es-errors/type');
 
 var Call = require('./Call');
 var CreateDataProperty = require('./CreateDataProperty');
-var EnumerableOwnProperties = require('./EnumerableOwnProperties');
+var EnumerableOwnPropertyNames = require('./EnumerableOwnPropertyNames');
 var Get = require('./Get');
 var IsArray = require('./IsArray');
 var ToLength = require('./ToLength');
@@ -13,7 +13,7 @@ var Type = require('./Type');
 
 var forEach = require('../helpers/forEach');
 
-// https://262.ecma-international.org/8.0/#sec-internalizejsonproperty
+// https://262.ecma-international.org/9.0/#sec-internalizejsonproperty
 
 // note: `reviver` was implicitly closed-over until ES2020, where it becomes a third argument
 
@@ -49,7 +49,7 @@ module.exports = function InternalizeJSONProperty(holder, name, reviver) {
 				I += 1; // step 2.b.iii.4
 			}
 		} else { // step 2.c
-			var keys = EnumerableOwnProperties(val, 'key'); // step 2.c.i
+			var keys = EnumerableOwnPropertyNames(val, 'key'); // step 2.c.i
 
 			forEach(keys, function (P) { // step 2.c.ii
 				// eslint-disable-next-line no-shadow
