@@ -6,50 +6,18 @@ var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
 var $Promise = GetIntrinsic('%Promise%', true);
 
+var AsyncFromSyncIteratorContinuation = require('./AsyncFromSyncIteratorContinuation');
 var Call = require('./Call');
 var CreateIterResultObject = require('./CreateIterResultObject');
 var Get = require('./Get');
 var GetMethod = require('./GetMethod');
-var IteratorComplete = require('./IteratorComplete');
 var IteratorNext = require('./IteratorNext');
-var IteratorValue = require('./IteratorValue');
 var ObjectCreate = require('./ObjectCreate');
-var PromiseResolve = require('./PromiseResolve');
 var Type = require('./Type');
 
 var isIteratorRecord = require('../helpers/records/iterator-record');
 
 var SLOT = require('internal-slot');
-
-var callBound = require('call-bind/callBound');
-
-var $then = callBound('Promise.prototype.then', true);
-
-var AsyncFromSyncIteratorContinuation = function AsyncFromSyncIteratorContinuation(result) {
-	if (Type(result) !== 'Object') {
-		throw new $TypeError('Assertion failed: Type(O) is not Object');
-	}
-
-	if (arguments.length > 1) {
-		throw new $TypeError('although AsyncFromSyncIteratorContinuation should take a second argument, it is not used in this implementation');
-	}
-
-	if (!$Promise) {
-		throw new $SyntaxError('This environment does not support Promises.');
-	}
-
-	return new $Promise(function (resolve) {
-		var done = IteratorComplete(result); // step 2
-		var value = IteratorValue(result); // step 4
-		var valueWrapper = PromiseResolve($Promise, value); // step 6
-
-		// eslint-disable-next-line no-shadow
-		var onFulfilled = function (value) { // steps 8-9
-			return CreateIterResultObject(value, done); // step 8.a
-		};
-		resolve($then(valueWrapper, onFulfilled)); // step 11
-	}); // step 12
-};
 
 var $AsyncFromSyncIteratorPrototype = GetIntrinsic('%AsyncFromSyncIteratorPrototype%', true) || {
 	next: function next(value) {
@@ -147,11 +115,11 @@ var $AsyncFromSyncIteratorPrototype = GetIntrinsic('%AsyncFromSyncIteratorProtot
 	}
 };
 
-// https://262.ecma-international.org/9.0/#sec-createasyncfromsynciterator
+// https://262.ecma-international.org/10.0/#sec-createasyncfromsynciterator
 
 module.exports = function CreateAsyncFromSyncIterator(syncIteratorRecord) {
 	if (!isIteratorRecord(syncIteratorRecord)) {
-		throw new $TypeError('Assertion failed: `syncIteratorRecord` is not an Iterator Record');
+		throw new $TypeError('Assertion failed: `syncIteratorRecord` must be an Iterator Record'); // step 1
 	}
 
 	// var asyncIterator = ObjectCreate(%AsyncFromSyncIteratorPrototype%, « [[SyncIteratorRecord]] »); // step 1

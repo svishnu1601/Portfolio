@@ -2,7 +2,6 @@
 
 var GetIntrinsic = require('get-intrinsic');
 
-var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
 var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
 
@@ -23,7 +22,7 @@ var tableTAO = require('./tables/typed-array-objects');
 
 var defaultEndianness = require('../helpers/defaultEndianness');
 
-// https://262.ecma-international.org/8.0/#sec-getvaluefrombuffer
+// https://262.ecma-international.org/10.0/#sec-getvaluefrombuffer
 
 module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTypedArray, order) {
 	var isSAB = isSharedArrayBuffer(arrayBuffer);
@@ -72,7 +71,7 @@ module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTyp
 	if (isSAB) { // step 6
 		/*
 		a. Let execution be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
-		b. Let eventList be the [[EventList]] field of the element in execution.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
+		b. Let eventList be the [[EventList]] field of the element in execution.[[EventsRecords]] whose [[AgentSignifier]] is AgentSignifier().
 		c. If isTypedArray is true and type is "Int8", "Uint8", "Int16", "Uint16", "Int32", or "Uint32", let noTear be true; otherwise let noTear be false.
 		d. Let rawValue be a List of length elementSize of nondeterministically chosen byte values.
 		e. NOTE: In implementations, rawValue is the result of a non-atomic or atomic read instruction on the underlying hardware. The nondeterminism is a semantic prescription of the memory model to describe observable behaviour of hardware with weak consistency.
@@ -80,7 +79,6 @@ module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTyp
 		g. Append readEvent to eventList.
 		h. Append Chosen Value Record { [[Event]]: readEvent, [[ChosenValue]]: rawValue } to execution.[[ChosenValues]].
 		*/
-		throw new $SyntaxError('TODO: support SharedArrayBuffers');
 	} else {
 		// 7. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex].
 		rawValue = $slice(new $Uint8Array(arrayBuffer, byteIndex), 0, elementSize); // step 6
