@@ -4,7 +4,7 @@ var ToNumber = require('./ToNumber');
 var ToPrimitive = require('./ToPrimitive');
 var Type = require('./Type');
 
-// https://262.ecma-international.org/5.1/#sec-11.9.3
+// https://262.ecma-international.org/6.0/#sec-abstract-equality-comparison
 
 module.exports = function AbstractEqualityComparison(x, y) {
 	var xType = Type(x);
@@ -27,10 +27,10 @@ module.exports = function AbstractEqualityComparison(x, y) {
 	if (yType === 'Boolean') {
 		return AbstractEqualityComparison(x, ToNumber(y));
 	}
-	if ((xType === 'String' || xType === 'Number') && yType === 'Object') {
+	if ((xType === 'String' || xType === 'Number' || xType === 'Symbol') && yType === 'Object') {
 		return AbstractEqualityComparison(x, ToPrimitive(y));
 	}
-	if (xType === 'Object' && (yType === 'String' || yType === 'Number')) {
+	if (xType === 'Object' && (yType === 'String' || yType === 'Number' || yType === 'Symbol')) {
 		return AbstractEqualityComparison(ToPrimitive(x), y);
 	}
 	return false;
