@@ -23,7 +23,7 @@ var ToString = require('./ToString');
 var isInteger = require('../helpers/isInteger');
 var isStringOrUndefined = require('../helpers/isStringOrUndefined');
 
-// http://262.ecma-international.org/9.0/#sec-getsubstitution
+// http://www.ecma-international.org/ecma-262/12.0/#sec-getsubstitution
 
 // eslint-disable-next-line max-statements, max-params, max-lines-per-function
 module.exports = function GetSubstitution(matched, str, position, captures, namedCaptures, replacement) {
@@ -42,7 +42,7 @@ module.exports = function GetSubstitution(matched, str, position, captures, name
 	}
 
 	if (!IsArray(captures) || !every(captures, isStringOrUndefined)) {
-		throw new $TypeError('Assertion failed: `captures` must be a List of Strings or `undefined`, got ' + inspect(captures));
+		throw new $TypeError('Assertion failed: `captures` must be a possibly-empty List of Strings or `undefined`, got ' + inspect(captures));
 	}
 
 	if (typeof replacement !== 'string') {
@@ -96,7 +96,6 @@ module.exports = function GetSubstitution(matched, str, position, captures, name
 						i += 2;
 					} else {
 						var endIndex = $indexOf(replacement, '>', i);
-
 						if (endIndex > -1) {
 							var groupName = $strSlice(replacement, i + '$<'.length, endIndex);
 							var capture = Get(namedCaptures, groupName);

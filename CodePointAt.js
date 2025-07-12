@@ -5,12 +5,12 @@ var callBound = require('call-bind/callBound');
 var isLeadingSurrogate = require('../helpers/isLeadingSurrogate');
 var isTrailingSurrogate = require('../helpers/isTrailingSurrogate');
 
-var UTF16DecodeSurrogatePair = require('./UTF16DecodeSurrogatePair');
+var UTF16SurrogatePairToCodePoint = require('./UTF16SurrogatePairToCodePoint');
 
 var $charAt = callBound('String.prototype.charAt');
 var $charCodeAt = callBound('String.prototype.charCodeAt');
 
-// https://262.ecma-international.org/11.0/#sec-codepointat
+// https://262.ecma-international.org/12.0/#sec-codepointat
 
 module.exports = function CodePointAt(string, position) {
 	if (typeof string !== 'string') {
@@ -48,7 +48,7 @@ module.exports = function CodePointAt(string, position) {
 	}
 
 	return {
-		'[[CodePoint]]': UTF16DecodeSurrogatePair(first, second),
+		'[[CodePoint]]': UTF16SurrogatePairToCodePoint(first, second),
 		'[[CodeUnitCount]]': 2,
 		'[[IsUnpairedSurrogate]]': false
 	};

@@ -17,7 +17,7 @@ var callBound = require('call-bind/callBound');
 
 var $then = callBound('Promise.prototype.then', true);
 
-// https://262.ecma-international.org/9.0/#sec-asynciteratorclose
+// https://262.ecma-international.org/12.0/#sec-asynciteratorclose
 
 module.exports = function AsyncIteratorClose(iteratorRecord, completion) {
 	if (!isIteratorRecord(iteratorRecord)) {
@@ -34,31 +34,37 @@ module.exports = function AsyncIteratorClose(iteratorRecord, completion) {
 
 	var iterator = iteratorRecord['[[Iterator]]']; // step 3
 
-	return new $Promise(function (resolve) {
-		var ret = GetMethod(iterator, 'return'); // step 4
-
-		if (typeof ret === 'undefined') {
-			resolve(completion); // step 5
-		} else {
-			resolve($then(
-				new $Promise(function (resolve2) {
-					// process.exit(42);
-					resolve2(Call(ret, iterator, [])); // step 6
+	return $then(
+		$then(
+			$then(
+				new $Promise(function (resolve) {
+					resolve(GetMethod(iterator, 'return')); // step 4
+					// resolve(Call(ret, iterator, [])); // step 6
 				}),
-				function (innerResult) {
-					if (Type(innerResult) !== 'Object') {
-						throw new $TypeError('`innerResult` must be an Object'); // step 10
+				function (returnV) { // step 5.a
+					if (typeof returnV === 'undefined') {
+						return completion; // step 5.b
 					}
-					return completion;
-				},
-				function (e) {
-					if (completion.type() === 'throw') {
-						completion['?'](); // step 8
-					} else {
-						throw e; // step 9
-					}
+					return Call(returnV, iterator); // step 5.c, 5.d.
 				}
-			));
+			),
+			null,
+			function (e) {
+				if (completion.type() === 'throw') {
+					completion['?'](); // step 6
+				} else {
+					throw e; // step 7
+				}
+			}
+		),
+		function (innerResult) { // step 8
+			if (completion.type() === 'throw') {
+				completion['?'](); // step 6
+			}
+			if (Type(innerResult) !== 'Object') {
+				throw new $TypeError('`innerResult` must be an Object'); // step 10
+			}
+			return completion;
 		}
-	});
+	);
 };
