@@ -2,13 +2,20 @@
 
 var $TypeError = require('es-errors/type');
 
-// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-leftShift
+var ToInt32 = require('../ToInt32');
+var ToUint32 = require('../ToUint32');
 
-module.exports = function BigIntLeftShift(x, y) {
-	if (typeof x !== 'bigint' || typeof y !== 'bigint') {
-		throw new $TypeError('Assertion failed: `x` and `y` arguments must be BigInts');
+// https://262.ecma-international.org/11.0/#sec-numeric-types-number-leftShift
+
+module.exports = function NumberLeftShift(x, y) {
+	if (typeof x !== 'number' || typeof y !== 'number') {
+		throw new $TypeError('Assertion failed: `x` and `y` arguments must be Numbers');
 	}
 
-	// shortcut for the actual spec mechanics
-	return x << y;
+	var lnum = ToInt32(x);
+	var rnum = ToUint32(y);
+
+	var shiftCount = rnum & 0x1F;
+
+	return lnum << shiftCount;
 };

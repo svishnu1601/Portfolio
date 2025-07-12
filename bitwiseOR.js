@@ -2,13 +2,13 @@
 
 var $TypeError = require('es-errors/type');
 
-var BigIntBitwiseOp = require('../BigIntBitwiseOp');
+var NumberBitwiseOp = require('../NumberBitwiseOp');
 
-// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-bitwiseOR
+// https://262.ecma-international.org/11.0/#sec-numeric-types-number-bitwiseOR
 
-module.exports = function BigIntBitwiseOR(x, y) {
-	if (typeof x !== 'bigint' || typeof y !== 'bigint') {
-		throw new $TypeError('Assertion failed: `x` and `y` arguments must be BigInts');
+module.exports = function NumberBitwiseOR(x, y) {
+	if (typeof x !== 'number' || typeof y !== 'number') {
+		throw new $TypeError('Assertion failed: `x` and `y` arguments must be Numbers');
 	}
-	return BigIntBitwiseOp('|', x, y);
+	return NumberBitwiseOp('|', x, y);
 };
