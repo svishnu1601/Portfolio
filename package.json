@@ -1,4 +1,4 @@
 {
-  "main": "./index.js",
+  "sideEffects": false,
   "module": "./index.mjs"
 }
