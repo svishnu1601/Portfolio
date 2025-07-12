@@ -1,36 +1,43 @@
 'use strict';
 
-var assign = require('./helpers/assign');
+var add = require('./add');
+var bitwiseAND = require('./bitwiseAND');
+var bitwiseNOT = require('./bitwiseNOT');
+var bitwiseOR = require('./bitwiseOR');
+var bitwiseXOR = require('./bitwiseXOR');
+var divide = require('./divide');
+var equal = require('./equal');
+var exponentiate = require('./exponentiate');
+var leftShift = require('./leftShift');
+var lessThan = require('./lessThan');
+var multiply = require('./multiply');
+var remainder = require('./remainder');
+var sameValue = require('./sameValue');
+var sameValueZero = require('./sameValueZero');
+var signedRightShift = require('./signedRightShift');
+var subtract = require('./subtract');
+var toString = require('./toString');
+var unaryMinus = require('./unaryMinus');
+var unsignedRightShift = require('./unsignedRightShift');
 
-var ES5 = require('./es5');
-var ES2015 = require('./es2015');
-var ES2016 = require('./es2016');
-var ES2017 = require('./es2017');
-var ES2018 = require('./es2018');
-var ES2019 = require('./es2019');
-var ES2020 = require('./es2020');
-var ES2021 = require('./es2021');
-var ES2022 = require('./es2022');
-var ES2023 = require('./es2023');
-var ES2024 = require('./es2024');
-
-var ES = {
-	ES5: ES5,
-	ES6: ES2015,
-	ES2015: ES2015,
-	ES7: ES2016,
-	ES2016: ES2016,
-	ES2017: ES2017,
-	ES2018: ES2018,
-	ES2019: ES2019,
-	ES2020: ES2020,
-	ES2021: ES2021,
-	ES2022: ES2022,
-	ES2023: ES2023,
-	ES2024: ES2024
+module.exports = {
+	add: add,
+	bitwiseAND: bitwiseAND,
+	bitwiseNOT: bitwiseNOT,
+	bitwiseOR: bitwiseOR,
+	bitwiseXOR: bitwiseXOR,
+	divide: divide,
+	equal: equal,
+	exponentiate: exponentiate,
+	leftShift: leftShift,
+	lessThan: lessThan,
+	multiply: multiply,
+	remainder: remainder,
+	sameValue: sameValue,
+	sameValueZero: sameValueZero,
+	signedRightShift: signedRightShift,
+	subtract: subtract,
+	toString: toString,
+	unaryMinus: unaryMinus,
+	unsignedRightShift: unsignedRightShift
 };
-assign(ES, ES5);
-delete ES.CheckObjectCoercible; // renamed in ES6 to RequireObjectCoercible
-assign(ES, ES2015);
-
-module.exports = ES;
