@@ -2,14 +2,13 @@
 
 var $TypeError = require('es-errors/type');
 
-var NumberAdd = require('./add');
-var NumberUnaryMinus = require('./unaryMinus');
+// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-subtract
 
-// https://262.ecma-international.org/12.0/#sec-numeric-types-number-subtract
-
-module.exports = function NumberSubtract(x, y) {
-	if (typeof x !== 'number' || typeof y !== 'number') {
-		throw new $TypeError('Assertion failed: `x` and `y` arguments must be Numbers');
+module.exports = function BigIntSubtract(x, y) {
+	if (typeof x !== 'bigint' || typeof y !== 'bigint') {
+		throw new $TypeError('Assertion failed: `x` and `y` arguments must be BigInts');
 	}
-	return NumberAdd(x, NumberUnaryMinus(y));
+
+	// shortcut for the actual spec mechanics
+	return x - y;
 };
