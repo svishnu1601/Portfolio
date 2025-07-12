@@ -1,15 +1,16 @@
 'use strict';
 
-var GetIntrinsic = require('get-intrinsic');
-
-var $BigInt = GetIntrinsic('%BigInt%', true);
 var $TypeError = require('es-errors/type');
 
-// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-bitwiseNOT
+var ToInt32 = require('../ToInt32');
 
-module.exports = function BigIntBitwiseNOT(x) {
-	if (typeof x !== 'bigint') {
-		throw new $TypeError('Assertion failed: `x` argument must be a BigInt');
+// https://262.ecma-international.org/11.0/#sec-numeric-types-number-bitwiseNOT
+
+module.exports = function NumberBitwiseNOT(x) {
+	if (typeof x !== 'number') {
+		throw new $TypeError('Assertion failed: `x` argument must be a Number');
 	}
-	return -x - $BigInt(1);
+	var oldValue = ToInt32(x);
+	// Return the result of applying the bitwise operator op to lnum and rnum. The result is a signed 32-bit integer.
+	return ~oldValue;
 };

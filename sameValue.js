@@ -1,15 +1,19 @@
 'use strict';
 
+var isNegativeZero = require('is-negative-zero');
+
 var $TypeError = require('es-errors/type');
 
-var BigIntEqual = require('./equal');
+var NumberSameValueZero = require('./sameValueZero');
 
-// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-sameValue
+// https://262.ecma-international.org/11.0/#sec-numeric-types-number-sameValue
 
-module.exports = function BigIntSameValue(x, y) {
-	if (typeof x !== 'bigint' || typeof y !== 'bigint') {
-		throw new $TypeError('Assertion failed: `x` and `y` arguments must be BigInts');
+module.exports = function NumberSameValue(x, y) {
+	if (typeof x !== 'number' || typeof y !== 'number') {
+		throw new $TypeError('Assertion failed: `x` and `y` arguments must be Numbers');
 	}
-
-	return BigIntEqual(x, y);
+	if (x === 0 && y === 0) {
+		return !(isNegativeZero(x) ^ isNegativeZero(y));
+	}
+	return NumberSameValueZero(x, y);
 };
