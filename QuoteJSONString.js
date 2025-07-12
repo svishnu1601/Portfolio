@@ -9,13 +9,13 @@ var isTrailingSurrogate = require('../helpers/isTrailingSurrogate');
 
 var $charCodeAt = callBound('String.prototype.charCodeAt');
 
+var StringToCodePoints = require('./StringToCodePoints');
 var UnicodeEscape = require('./UnicodeEscape');
-var UTF16DecodeString = require('./UTF16DecodeString');
-var UTF16Encoding = require('./UTF16Encoding');
+var UTF16EncodeCodePoint = require('./UTF16EncodeCodePoint');
 
 var hasOwn = require('hasown');
 
-// https://262.ecma-international.org/11.0/#sec-quotejsonstring
+// https://262.ecma-international.org/12.0/#sec-quotejsonstring
 
 var escapes = {
 	'\u0008': '\\b',
@@ -33,7 +33,7 @@ module.exports = function QuoteJSONString(value) {
 	}
 	var product = '"';
 	if (value) {
-		forEach(UTF16DecodeString(value), function (C) {
+		forEach(StringToCodePoints(value), function (C) {
 			if (hasOwn(escapes, C)) {
 				product += escapes[C];
 			} else {
@@ -41,7 +41,7 @@ module.exports = function QuoteJSONString(value) {
 				if (cCharCode < 0x20 || isLeadingSurrogate(C) || isTrailingSurrogate(C)) {
 					product += UnicodeEscape(C);
 				} else {
-					product += UTF16Encoding(cCharCode);
+					product += UTF16EncodeCodePoint(cCharCode);
 				}
 			}
 		});

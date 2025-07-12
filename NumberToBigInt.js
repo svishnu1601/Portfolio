@@ -7,15 +7,15 @@ var $RangeError = require('es-errors/range');
 var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
 
-var isInteger = require('../helpers/isInteger');
+var IsIntegralNumber = require('./IsIntegralNumber');
 
-// https://262.ecma-international.org/11.0/#sec-numbertobigint
+// https://262.ecma-international.org/12.0/#sec-numbertobigint
 
 module.exports = function NumberToBigInt(number) {
 	if (typeof number !== 'number') {
 		throw new $TypeError('Assertion failed: `number` must be a String');
 	}
-	if (!isInteger(number)) {
+	if (!IsIntegralNumber(number)) {
 		throw new $RangeError('The number ' + number + ' cannot be converted to a BigInt because it is not an integer');
 	}
 	if (!$BigInt) {
