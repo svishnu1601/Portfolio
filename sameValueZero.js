@@ -2,14 +2,19 @@
 
 var $TypeError = require('es-errors/type');
 
-var BigIntEqual = require('./equal');
+var isNaN = require('../../helpers/isNaN');
 
-// https://262.ecma-international.org/11.0/#sec-numeric-types-bigint-sameValueZero
+// https://262.ecma-international.org/11.0/#sec-numeric-types-number-sameValueZero
 
-module.exports = function BigIntSameValueZero(x, y) {
-	if (typeof x !== 'bigint' || typeof y !== 'bigint') {
-		throw new $TypeError('Assertion failed: `x` and `y` arguments must be BigInts');
+module.exports = function NumberSameValueZero(x, y) {
+	if (typeof x !== 'number' || typeof y !== 'number') {
+		throw new $TypeError('Assertion failed: `x` and `y` arguments must be Numbers');
 	}
 
-	return BigIntEqual(x, y);
+	var xNaN = isNaN(x);
+	var yNaN = isNaN(y);
+	if (xNaN || yNaN) {
+		return xNaN === yNaN;
+	}
+	return x === y;
 };
