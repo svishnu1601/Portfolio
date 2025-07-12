@@ -20,10 +20,10 @@ var ToBigInt = require('./ToBigInt');
 var ToNumber = require('./ToNumber');
 var ToObject = require('./ToObject');
 var ToString = require('./ToString');
+var TypedArrayElementSize = require('./TypedArrayElementSize');
+var TypedArrayElementType = require('./TypedArrayElementType');
 
-var tableTAO = require('./tables/typed-array-objects');
-
-// https://262.ecma-international.org/12.0/#sec-settypedarrayfromarraylike
+// https://262.ecma-international.org/13.0/#sec-settypedarrayfromarraylike
 
 module.exports = function SetTypedArrayFromArrayLike(target, targetOffset, source) {
 	var whichTarget = whichTypedArray(target);
@@ -36,62 +36,60 @@ module.exports = function SetTypedArrayFromArrayLike(target, targetOffset, sourc
 	}
 
 	if (isTypedArray(source)) {
-		throw new $TypeError('Assertion failed: source must not be a TypedArray instance'); // step 1
+		throw new $TypeError('Assertion failed: source must not be a TypedArray instance');
 	}
 
-	var targetBuffer = typedArrayBuffer(target); // step 2
+	var targetBuffer = typedArrayBuffer(target); // step 1
 
 	if (IsDetachedBuffer(targetBuffer)) {
-		throw new $TypeError('target’s buffer is detached'); // step 3
+		throw new $TypeError('target’s buffer is detached'); // step 2
 	}
 
-	var targetLength = typedArrayLength(target); // step 4
+	var targetLength = typedArrayLength(target); // step 3
 
-	var targetName = whichTarget; // step 5
+	var targetElementSize = TypedArrayElementSize(target); // step 4
 
-	var targetType = tableTAO.name['$' + targetName]; // step 7
+	var targetType = TypedArrayElementType(target); // step 5
 
-	var targetElementSize = tableTAO.size['$' + targetType]; // step 6
+	var targetByteOffset = typedArrayByteOffset(target); // step 6
 
-	var targetByteOffset = typedArrayByteOffset(target); // step 8
+	var src = ToObject(source); // step 7
 
-	var src = ToObject(source); // step 9
-
-	var srcLength = LengthOfArrayLike(src); // step 10
+	var srcLength = LengthOfArrayLike(src); // step 8
 
 	if (targetOffset === Infinity) {
-		throw new $RangeError('targetOffset must be a finite integer'); // step 11
+		throw new $RangeError('targetOffset must be a finite integer'); // step 9
 	}
 
 	if (srcLength + targetOffset > targetLength) {
-		throw new $RangeError('targetOffset + srcLength must be <= target.length'); // step 12
+		throw new $RangeError('targetOffset + srcLength must be <= target.length'); // step 10
 	}
 
-	var targetByteIndex = (targetOffset * targetElementSize) + targetByteOffset; // step 13
+	var targetByteIndex = (targetOffset * targetElementSize) + targetByteOffset; // step 11
 
-	var k = 0; // step 14
+	var k = 0; // step 12
 
-	var limit = targetByteIndex + (targetElementSize * srcLength); // step 15
+	var limit = targetByteIndex + (targetElementSize * srcLength); // step 13
 
-	while (targetByteIndex < limit) { // step 16
-		var Pk = ToString(k); // step 16.a
+	while (targetByteIndex < limit) { // step 14
+		var Pk = ToString(k); // step 14.a
 
-		var value = Get(src, Pk); // step 16.b
+		var value = Get(src, Pk); // step 14.b
 
 		if (IsBigIntElementType(targetType)) {
-			value = ToBigInt(value); // step 16.c
+			value = ToBigInt(value); // step 14.c
 		} else {
-			value = ToNumber(value); // step 16.d
+			value = ToNumber(value); // step 14.d
 		}
 
 		if (IsDetachedBuffer(targetBuffer)) {
-			throw new $TypeError('target’s buffer is detached'); // step 16.e
+			throw new $TypeError('target’s buffer is detached'); // step 14.e
 		}
 
-		SetValueInBuffer(targetBuffer, targetByteIndex, targetType, value, true, 'Unordered'); // step 16.f
+		SetValueInBuffer(targetBuffer, targetByteIndex, targetType, value, true, 'Unordered'); // step 14.f
 
-		k += 1; // step 16.g
+		k += 1; // step 14.g
 
-		targetByteIndex += targetElementSize; // step 16.h
+		targetByteIndex += targetElementSize; // step 14.h
 	}
 };
