@@ -5,7 +5,7 @@ var $TypeError = require('es-errors/type');
 
 var GetPrototypeFromConstructor = require('./GetPrototypeFromConstructor');
 var IsArray = require('./IsArray');
-var ObjectCreate = require('./ObjectCreate');
+var OrdinaryObjectCreate = require('./OrdinaryObjectCreate');
 
 // https://262.ecma-international.org/6.0/#sec-ordinarycreatefromconstructor
 
@@ -16,5 +16,5 @@ module.exports = function OrdinaryCreateFromConstructor(constructor, intrinsicDe
 	if (!IsArray(slots)) {
 		throw new $TypeError('Assertion failed: if provided, `internalSlotsList` must be a List');
 	}
-	return ObjectCreate(proto, slots);
+	return OrdinaryObjectCreate(proto, slots);
 };

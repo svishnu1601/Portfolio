@@ -3,11 +3,11 @@
 var $TypeError = require('es-errors/type');
 
 var IsDetachedBuffer = require('./IsDetachedBuffer');
-var IsInteger = require('./IsInteger');
+var IsValidIntegerIndex = require('./IsValidIntegerIndex');
 var SetValueInBuffer = require('./SetValueInBuffer');
+var ToBigInt = require('./ToBigInt');
 var ToNumber = require('./ToNumber');
 
-var isNegativeZero = require('is-negative-zero');
 var typedArrayBuffer = require('typed-array-buffer');
 var typedArrayByteOffset = require('typed-array-byte-offset');
 var typedArrayLength = require('typed-array-length');
@@ -15,18 +15,20 @@ var whichTypedArray = require('which-typed-array');
 
 var tableTAO = require('./tables/typed-array-objects');
 
-// https://262.ecma-international.org/8.0/#sec-integerindexedelementset
+// https://262.ecma-international.org/11.0/#sec-integerindexedelementset
 
 module.exports = function IntegerIndexedElementSet(O, index, value) {
-	if (typeof index !== 'number') {
-		throw new $TypeError('`index` must be a Number'); // step 1
-	}
-	var arrayTypeName = whichTypedArray(O); // step 12
+	var arrayTypeName = whichTypedArray(O); // step 9
 	if (!arrayTypeName) {
-		throw new $TypeError('`O` must be a TypedArray'); // step 2
+		throw new $TypeError('`O` must be a TypedArray'); // step 1
 	}
 
-	var numValue = ToNumber(value); // step 3
+	if (typeof index !== 'number') {
+		throw new $TypeError('`index` must be a Number'); // step 2
+	}
+
+	var contentType = arrayTypeName === 'BigInt64Array' || arrayTypeName === 'BigUint64Array' ? 'BigInt' : 'Number';
+	var numValue = contentType === 'BigInt' ? ToBigInt(value) : ToNumber(value); // steps 3 - 4
 
 	var buffer = typedArrayBuffer(O); // step 5
 
@@ -34,9 +36,11 @@ module.exports = function IntegerIndexedElementSet(O, index, value) {
 		throw new $TypeError('`O` has a detached buffer'); // step 6
 	}
 
-	if (!IsInteger(index) || isNegativeZero(index)) {
-		return false; // steps 7 - 8
+	if (!IsValidIntegerIndex(O, index)) {
+		return false; // step 7
 	}
+
+	var offset = typedArrayByteOffset(O); // step 8
 
 	var length = typedArrayLength(O); // step 9
 
@@ -44,15 +48,13 @@ module.exports = function IntegerIndexedElementSet(O, index, value) {
 		return false; // step 10
 	}
 
-	var offset = typedArrayByteOffset(O); // step 11
+	var elementType = tableTAO.name['$' + arrayTypeName]; // step 12
 
-	var elementType = tableTAO.name['$' + arrayTypeName]; // step 15
+	var elementSize = tableTAO.size['$' + elementType]; // step 10
 
-	var elementSize = tableTAO.size['$' + elementType]; // step 13
+	var indexedPosition = (index * elementSize) + offset; // step 11
 
-	var indexedPosition = (index * elementSize) + offset; // step 14
+	SetValueInBuffer(buffer, indexedPosition, elementType, numValue, true, 'Unordered'); // step 13
 
-	SetValueInBuffer(buffer, indexedPosition, elementType, numValue, true, 'Unordered'); // step 16
-
-	return true; // step 17
+	return true; // step 14
 };

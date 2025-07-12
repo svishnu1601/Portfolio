@@ -1,15 +1,13 @@
 'use strict';
 
+var CodePointAt = require('./CodePointAt');
+
 var isInteger = require('../helpers/isInteger');
-var isLeadingSurrogate = require('../helpers/isLeadingSurrogate');
-var isTrailingSurrogate = require('../helpers/isTrailingSurrogate');
 var MAX_SAFE_INTEGER = require('../helpers/maxSafeInteger');
 
 var $TypeError = require('es-errors/type');
 
-var $charCodeAt = require('call-bind/callBound')('String.prototype.charCodeAt');
-
-// https://262.ecma-international.org/6.0/#sec-advancestringindex
+// https://262.ecma-international.org/11.0/#sec-advancestringindex
 
 module.exports = function AdvanceStringIndex(S, index, unicode) {
 	if (typeof S !== 'string') {
@@ -28,16 +26,6 @@ module.exports = function AdvanceStringIndex(S, index, unicode) {
 	if ((index + 1) >= length) {
 		return index + 1;
 	}
-
-	var first = $charCodeAt(S, index);
-	if (!isLeadingSurrogate(first)) {
-		return index + 1;
-	}
-
-	var second = $charCodeAt(S, index + 1);
-	if (!isTrailingSurrogate(second)) {
-		return index + 1;
-	}
-
-	return index + 2;
+	var cp = CodePointAt(S, index);
+	return index + cp['[[CodeUnitCount]]'];
 };

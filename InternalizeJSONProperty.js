@@ -7,15 +7,13 @@ var CreateDataProperty = require('./CreateDataProperty');
 var EnumerableOwnPropertyNames = require('./EnumerableOwnPropertyNames');
 var Get = require('./Get');
 var IsArray = require('./IsArray');
-var ToLength = require('./ToLength');
+var LengthOfArrayLike = require('./LengthOfArrayLike');
 var ToString = require('./ToString');
 var Type = require('./Type');
 
 var forEach = require('../helpers/forEach');
 
-// https://262.ecma-international.org/9.0/#sec-internalizejsonproperty
-
-// note: `reviver` was implicitly closed-over until ES2020, where it becomes a third argument
+// https://262.ecma-international.org/11.0/#sec-internalizejsonproperty
 
 module.exports = function InternalizeJSONProperty(holder, name, reviver) {
 	if (Type(holder) !== 'Object') {
@@ -35,7 +33,7 @@ module.exports = function InternalizeJSONProperty(holder, name, reviver) {
 		if (isArray) { // step 2.b
 			var I = 0; // step 2.b.i
 
-			var len = ToLength(Get(val, 'length')); // step 2.b.ii
+			var len = LengthOfArrayLike(val, 'length'); // step 2.b.ii
 
 			while (I < len) { // step 2.b.iii
 				var newElement = InternalizeJSONProperty(val, ToString(I), reviver); // step 2.b.iv.1

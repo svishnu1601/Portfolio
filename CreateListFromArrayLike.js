@@ -8,13 +8,14 @@ var $push = callBound('Array.prototype.push');
 
 var Get = require('./Get');
 var IsArray = require('./IsArray');
-var ToLength = require('./ToLength');
+var LengthOfArrayLike = require('./LengthOfArrayLike');
 var ToString = require('./ToString');
 var Type = require('./Type');
 
-var defaultElementTypes = ['Undefined', 'Null', 'Boolean', 'String', 'Symbol', 'Number', 'Object'];
+var defaultElementTypes = ['Undefined', 'Null', 'Boolean', 'String', 'Symbol', 'Number', 'BigInt', 'Object'];
 
-// https://262.ecma-international.org/6.0/#sec-createlistfromarraylike
+// https://262.ecma-international.org/11.0/#sec-createlistfromarraylike
+
 module.exports = function CreateListFromArrayLike(obj) {
 	var elementTypes = arguments.length > 1
 		? arguments[1]
@@ -26,7 +27,7 @@ module.exports = function CreateListFromArrayLike(obj) {
 	if (!IsArray(elementTypes)) {
 		throw new $TypeError('Assertion failed: `elementTypes`, if provided, must be an array');
 	}
-	var len = ToLength(Get(obj, 'length'));
+	var len = LengthOfArrayLike(obj);
 	var list = [];
 	var index = 0;
 	while (index < len) {

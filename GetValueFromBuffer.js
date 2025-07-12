@@ -2,6 +2,7 @@
 
 var GetIntrinsic = require('get-intrinsic');
 
+var $SyntaxError = require('es-errors/syntax');
 var $TypeError = require('es-errors/type');
 var $Uint8Array = GetIntrinsic('%Uint8Array%', true);
 
@@ -12,7 +13,7 @@ var $slice = callBound('Array.prototype.slice');
 var isInteger = require('../helpers/isInteger');
 
 var IsDetachedBuffer = require('./IsDetachedBuffer');
-var RawBytesToNumber = require('./RawBytesToNumber');
+var RawBytesToNumeric = require('./RawBytesToNumeric');
 
 var isArrayBuffer = require('is-array-buffer');
 var isSharedArrayBuffer = require('is-shared-array-buffer');
@@ -22,7 +23,7 @@ var tableTAO = require('./tables/typed-array-objects');
 
 var defaultEndianness = require('../helpers/defaultEndianness');
 
-// https://262.ecma-international.org/10.0/#sec-getvaluefrombuffer
+// https://262.ecma-international.org/11.0/#sec-getvaluefrombuffer
 
 module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTypedArray, order) {
 	var isSAB = isSharedArrayBuffer(arrayBuffer);
@@ -34,16 +35,16 @@ module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTyp
 		throw new $TypeError('Assertion failed: `byteIndex` must be an integer');
 	}
 
-	if (typeof type !== 'string') {
-		throw new $TypeError('Assertion failed: `type` must be a string');
+	if (typeof type !== 'string' || typeof tableTAO.size['$' + type] !== 'number') {
+		throw new $TypeError('Assertion failed: `type` must be a Typed Array element type');
 	}
 
 	if (typeof isTypedArray !== 'boolean') {
 		throw new $TypeError('Assertion failed: `isTypedArray` must be a boolean');
 	}
 
-	if (typeof order !== 'string') {
-		throw new $TypeError('Assertion failed: `order` must be a string');
+	if (order !== 'SeqCst' && order !== 'Unordered') {
+		throw new $TypeError('Assertion failed: `order` must be either `SeqCst` or `Unordered`');
 	}
 
 	if (arguments.length > 5 && typeof arguments[5] !== 'boolean') {
@@ -64,14 +65,14 @@ module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTyp
 
 	var elementSize = tableTAO.size['$' + type]; // step 5
 	if (!elementSize) {
-		throw new $TypeError('Assertion failed: `type` must be one of "Int8", "Uint8", "Uint8C", "Int16", "Uint16", "Int32", "Uint32", "Float32", or "Float64"');
+		throw new $TypeError('Assertion failed: `type` must be one of "Int8", "Uint8", "Uint8C", "Int16", "Uint16", "Int32", "Uint32", "BigInt64", "BigUint64", "Float32", or "Float64"');
 	}
 
 	var rawValue;
 	if (isSAB) { // step 6
 		/*
 		a. Let execution be the [[CandidateExecution]] field of the surrounding agent's Agent Record.
-		b. Let eventList be the [[EventList]] field of the element in execution.[[EventsRecords]] whose [[AgentSignifier]] is AgentSignifier().
+		b. Let eventList be the [[EventList]] field of the element in execution.[[EventLists]] whose [[AgentSignifier]] is AgentSignifier().
 		c. If isTypedArray is true and type is "Int8", "Uint8", "Int16", "Uint16", "Int32", or "Uint32", let noTear be true; otherwise let noTear be false.
 		d. Let rawValue be a List of length elementSize of nondeterministically chosen byte values.
 		e. NOTE: In implementations, rawValue is the result of a non-atomic or atomic read instruction on the underlying hardware. The nondeterminism is a semantic prescription of the memory model to describe observable behaviour of hardware with weak consistency.
@@ -79,6 +80,7 @@ module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTyp
 		g. Append readEvent to eventList.
 		h. Append Chosen Value Record { [[Event]]: readEvent, [[ChosenValue]]: rawValue } to execution.[[ChosenValues]].
 		*/
+		throw new $SyntaxError('SharedArrayBuffer is not supported by this implementation');
 	} else {
 		// 7. Let rawValue be a List of elementSize containing, in order, the elementSize sequence of bytes starting with block[byteIndex].
 		rawValue = $slice(new $Uint8Array(arrayBuffer, byteIndex), 0, elementSize); // step 6
@@ -91,5 +93,5 @@ module.exports = function GetValueFromBuffer(arrayBuffer, byteIndex, type, isTyp
 		? $slice(safeConcat([0, 0, 0, 0, 0, 0, 0, 0], rawValue), -elementSize)
 		: $slice(safeConcat(rawValue, [0, 0, 0, 0, 0, 0, 0, 0]), 0, elementSize);
 
-	return RawBytesToNumber(type, bytes, isLittleEndian);
+	return RawBytesToNumeric(type, bytes, isLittleEndian);
 };

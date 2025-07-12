@@ -12,7 +12,7 @@ var CreateIterResultObject = require('./CreateIterResultObject');
 var Get = require('./Get');
 var GetMethod = require('./GetMethod');
 var IteratorNext = require('./IteratorNext');
-var ObjectCreate = require('./ObjectCreate');
+var OrdinaryObjectCreate = require('./OrdinaryObjectCreate');
 var Type = require('./Type');
 
 var isIteratorRecord = require('../helpers/records/iterator-record');
@@ -115,15 +115,15 @@ var $AsyncFromSyncIteratorPrototype = GetIntrinsic('%AsyncFromSyncIteratorProtot
 	}
 };
 
-// https://262.ecma-international.org/10.0/#sec-createasyncfromsynciterator
+// https://262.ecma-international.org/11.0/#sec-createasyncfromsynciterator
 
 module.exports = function CreateAsyncFromSyncIterator(syncIteratorRecord) {
 	if (!isIteratorRecord(syncIteratorRecord)) {
-		throw new $TypeError('Assertion failed: `syncIteratorRecord` must be an Iterator Record'); // step 1
+		throw new $TypeError('Assertion failed: `syncIteratorRecord` must be an Iterator Record');
 	}
 
-	// var asyncIterator = ObjectCreate(%AsyncFromSyncIteratorPrototype%, « [[SyncIteratorRecord]] »); // step 1
-	var asyncIterator = ObjectCreate($AsyncFromSyncIteratorPrototype);
+	// var asyncIterator = OrdinaryObjectCreate(%AsyncFromSyncIteratorPrototype%, « [[SyncIteratorRecord]] »); // step 1
+	var asyncIterator = OrdinaryObjectCreate($AsyncFromSyncIteratorPrototype);
 
 	SLOT.set(asyncIterator, '[[SyncIteratorRecord]]', syncIteratorRecord); // step 2
 

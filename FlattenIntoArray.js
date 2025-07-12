@@ -9,10 +9,10 @@ var CreateDataPropertyOrThrow = require('./CreateDataPropertyOrThrow');
 var Get = require('./Get');
 var HasProperty = require('./HasProperty');
 var IsArray = require('./IsArray');
-var ToLength = require('./ToLength');
+var LengthOfArrayLike = require('./LengthOfArrayLike');
 var ToString = require('./ToString');
 
-// https://262.ecma-international.org/10.0/#sec-flattenintoarray
+// https://262.ecma-international.org/11.0/#sec-flattenintoarray
 
 module.exports = function FlattenIntoArray(target, source, sourceLen, start, depth) {
 	var mapperFunction;
@@ -38,7 +38,7 @@ module.exports = function FlattenIntoArray(target, source, sourceLen, start, dep
 				shouldFlatten = IsArray(element);
 			}
 			if (shouldFlatten) {
-				var elementLen = ToLength(Get(element, 'length'));
+				var elementLen = LengthOfArrayLike(element);
 				targetIndex = FlattenIntoArray(target, element, elementLen, targetIndex, depth - 1);
 			} else {
 				if (targetIndex >= MAX_SAFE_INTEGER) {
